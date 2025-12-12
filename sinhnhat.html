@@ -24,8 +24,8 @@
             <p class="signature" id="signature">Gửi những tâm tư đến cậu<br>Dũng</p>
         </div>
     </div>
-    <script >
-        let isTransitioning = false;
+    <script>
+    let isTransitioning = false;
 
 function createHearts() {
     const heartsContainer = document.getElementById('hearts');
@@ -52,43 +52,49 @@ function applyWordTypingAnimation() {
 
     paragraphs.forEach((p) => {
         const text = p.textContent.trim();
-        const words = text.match(/[\p{L}\p{M}']+|[.,!?]/gu) || [];
+
+        // FIX: Regex an toàn hơn để tránh lỗi trên điện thoại
+        const words = text.split(/(\s+)/).filter(w => w.trim().length > 0);
+
         p.innerHTML = words
-            .map((word, index) => `<span class="word" style="animation-delay: ${totalDelay + index * 0.3}s">${word}</span>`)
+            .map((word, index) => 
+                `<span class="word" style="animation-delay: ${totalDelay + index * 0.3}s">${word}</span>`
+            )
             .join(' ');
+        
         totalDelay += words.length * 0.3;
         totalWords += words.length;
     });
 
     setTimeout(() => {
         document.getElementById('signature').classList.add('show');
-        document.getElementById('nextButton').classList.add('show');
-    }, totalWords * 300 + 3000);
+    }, totalWords * 300 + 2000);
 }
 
 const envelope = document.getElementById('envelope');
-envelope.addEventListener('click', function (event) {
+
+// FIX: hỗ trợ cả mobile
+function toggleEnvelope(e) {
     if (isTransitioning) return;
     isTransitioning = true;
     envelope.classList.toggle('closed');
-    setTimeout(() => {
-        isTransitioning = false;
-    }, 1000);
-    event.stopPropagation();
-});
+    setTimeout(() => { isTransitioning = false; }, 1000);
+    e.stopPropagation();
+}
 
-document.getElementById('nextButton').addEventListener('click', function () {
-    window.location.href = 'banh.html';
-});
+envelope.addEventListener('click', toggleEnvelope);
+envelope.addEventListener('touchstart', toggleEnvelope);
 
 window.onload = function () {
     createHearts();
     applyWordTypingAnimation();
+
     setTimeout(() => {
         envelope.classList.remove('closed');
     }, 1000);
 };
     </script>
+    
 </body>
 
 </html>
